@@ -67,8 +67,8 @@
         <div class="row">
           <p class="how label">
             <span>作品指纹</span>
-            <a class="how-text">
-              如何获得
+            <a class="how-text" @click.stop="isInputVisible = !isInputVisible">
+              点击计算作品指纹
               <img
                 src="@/assets/images/question.png"
                 srcset="@/assets/images/question@2x.png 2x"
@@ -87,6 +87,49 @@
             v-model="fingerprint"
             placeholder="请输入作品指纹"
           />
+        </div>
+        <div class="row" v-if="isInputVisible">
+          <div
+            class="drop-zone"
+            @click="$refs.uploader.click()"
+            @dragover.stop.prevent
+            @drop.stop.prevent="onFilesDrop"
+          >
+            <div>
+              <img src="@/assets/images/product.svg" alt="" />
+              <p>点击或拖动文件，最大1.5GB</p>
+            </div>
+          </div>
+
+          <input
+            ref="uploader"
+            class="hidden"
+            type="file"
+            multiple
+            @change="onFilesSelect"
+          />
+        </div>
+        <div class="row" v-if="isInputVisible">
+          <p class="label">作品指纹计算结果</p>
+          <ul v-if="fileQueue.length > 0" class="file-quene">
+            <li v-for="({ file, sha256 }, i) in fileQueue" :key="i">
+              <span label>{{ file.name }}</span> |
+              <span>{{ file.size | fileSize }}</span> |
+              <span>Type: {{ file.name | fileType }}</span> |
+              <span>Time spent: {{ sha256.timeSpent.toFixed(2) }}s</span> |
+              <br />
+              <span
+                v-if="sha256.completed"
+                @click.stop="copyAction(sha256.hash)"
+                style="color: #6362ff; cursor: pointer"
+                >SHA256: {{ sha256.hash }}</span
+              >
+              <span v-else>
+                <span>`%{{ sha256.progress }}`</span>
+              </span>
+            </li>
+          </ul>
+          <p class="un-selected" v-else>未选择任何文件</p>
         </div>
         <div class="start row">
           <button @click="startProcess" :class="{ disabled: hasSaved }">
@@ -127,7 +170,11 @@
 <script>
 import * as Fetch from "@/utils/request";
 import config from "@/config";
+import { mapActions, mapGetters } from "vuex";
+
 const SpinnerIcon = () => import("@/components/Spinner");
+
+const MAX_FILE_SIZE = 1024 * 1024 * 1024 * 1.5; // 1.5 GB
 
 export default {
   name: "Process",
@@ -136,6 +183,7 @@ export default {
   },
   data() {
     return {
+      isInputVisible: false,
       loading: false,
       hasSaved: false,
       name: "",
@@ -152,7 +200,34 @@ export default {
       order_id: null,
     };
   },
+  computed: {
+    ...mapGetters(["fileQueue"]),
+  },
   methods: {
+    ...mapActions(["addFiles"]),
+    copyAction(val = "") {
+      this.$copyText(val).then(() => {
+        this.$toast("已复制到粘贴板");
+      });
+    },
+    validateAndAdd(files) {
+      const validFiles = files.filter((file) => {
+        if (file.size < MAX_FILE_SIZE) return true;
+        this.$toast.warning(`File '${file.name}' is ignored (> 1.5 GB)`);
+        return false;
+      });
+      console.log(validFiles);
+      this.addFiles(validFiles);
+    },
+    onFilesSelect() {
+      const files = Array.from(this.$refs.uploader.files || []);
+      this.$refs.uploader.value = "";
+      this.validateAndAdd(files);
+    },
+    onFilesDrop(e) {
+      const files = Array.from(e.dataTransfer.files || []);
+      this.validateAndAdd(files);
+    },
     onNumberInputBlur() {
       this.isPhoneValid = this.phoneReg.test(this.phone);
       if (!this.isPhoneValid) {
@@ -269,6 +344,43 @@ export default {
     .lf {
       .row {
         margin-bottom: 24px;
+        .file-quene {
+          li {
+            text-align: left;
+          }
+        }
+        .un-selected {
+          padding: 15px 0;
+        }
+        .hidden {
+          display: none !important;
+        }
+        .drop-zone {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+          height: 220px;
+          cursor: pointer;
+          background: #f1f3f7;
+          border: 3px dashed #8590a6;
+          border-radius: 20px;
+          &:hover {
+            transition: all 0.25s;
+            border-color: $func-button-bg;
+          }
+          p {
+            font-size: 18px;
+            margin-top: 15px;
+            color: #8590a6;
+          }
+          img {
+            display: inline-block;
+            width: 48px;
+            color: #8590a6;
+            vertical-align: middle;
+          }
+        }
         &.start {
           display: flex;
           justify-content: left;

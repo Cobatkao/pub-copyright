@@ -11,7 +11,7 @@
     </header>
     <div class="intro"></div>
     <div class="start">
-      <router-link class="start-btn" to="/process">开始使用</router-link>
+      <router-link class="start-btn" to="/new">开始使用</router-link>
     </div>
     <div class="features">
       <div class="submit-area">

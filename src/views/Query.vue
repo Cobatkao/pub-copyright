@@ -46,38 +46,34 @@
       </div>
     </div>
     <div class="result">
-      <template v-if="resList.length > 0">
-        <div v-for="item in resList" :key="item.id" class="item">
-          <div class="item-tp">
-            <div class="status-dot" />
-            <div class="time">2019.08.29 14:30:23</div>
+      <div v-for="item in resList" :key="item.id" class="item">
+        <div class="item-tp">
+          <div class="status-dot" />
+          <div class="time">2019.08.29 14:30:23</div>
+        </div>
+        <div class="item-md">
+          <span class="product-name">{{ item.memo || "未命名" }}</span>
+        </div>
+        <div class="item-bt">
+          <div class="lf">
+            <p class="type">文件类型：{{ item.file_type | fileType }}</p>
+            <p class="id">{{ item.order_id }}</p>
           </div>
-          <div class="item-md">
-            <span class="product-name">{{ item.memo || "未命名" }}</span>
-          </div>
-          <div class="item-bt">
-            <div class="lf">
-              <p class="type">文件类型：{{ item.file_type | fileType }}</p>
-              <p class="id">{{ item.order_id }}</p>
-            </div>
-            <div class="rt">
-              <router-link
-                class="check"
-                :to="`/proof?order_id=${this.order_id}`"
-                >查看证据</router-link
-              >
-              <button class="download">
-                <img
-                  @click.stop="cancel"
-                  src="@/assets/images/download.svg"
-                  alt="装饰"
-                  title="关闭"
-                />
-              </button>
-            </div>
+          <div class="rt">
+            <button class="check" @click="jumpProof(item)">
+              <span>查看证据</span> <spinner v-if="loading" type="dark" />
+            </button>
+            <button class="download">
+              <img
+                @click.stop="cancel"
+                src="@/assets/images/download.svg"
+                alt="装饰"
+                title="关闭"
+              />
+            </button>
           </div>
         </div>
-      </template>
+      </div>
       <!-- <p class="empty" v-else>未找到查询记录</p> -->
     </div>
   </div>
@@ -88,13 +84,21 @@ import * as Fetch from "@/utils/request";
 import config from "@/config";
 import dayjs from "dayjs";
 
+const Spinner = () => import("@/components/Spinner");
+
+const store = require("store");
+
 export default {
   name: "Query",
+  components: {
+    Spinner,
+  },
   data() {
     return {
       id: "",
       orderId: null,
       resList: [],
+      loading: false,
     };
   },
   filter: {
@@ -112,8 +116,22 @@ export default {
     },
   },
   methods: {
+    jumpProof(item) {
+      this.loading = true;
+      if (store.get("proof")) {
+        store.remove("proof");
+      }
+      store.set("proof", item);
+      setTimeout(() => {
+        this.$router.push({
+          path: "/proof",
+          query: {
+            order_id: this.orderId,
+          },
+        });
+      }, 1200);
+    },
     startQuery() {
-      this.resList = null;
       Fetch.post(`${config.fetchUrl}get_open_copyright`, {
         order_id: this.orderId,
       }).then(({ data }) => {
@@ -254,7 +272,6 @@ export default {
     flex-direction: column;
     justify-content: space-between;
     width: 1000px;
-    min-height: 420px;
     margin: 0 auto;
     .empty {
       margin: 0 auto;
@@ -320,24 +337,36 @@ export default {
             cursor: pointer;
           }
           .check {
-            width: 96px;
+            padding: 0 10px;
             height: 30px;
             margin-right: 14px;
             line-height: 30px;
             text-decoration: none;
-            color: $main-text-color;
             background: #f2f2f2;
             border-radius: 15px;
             border: 1px solid #f2f2f2;
+            span {
+              color: $main-text-color;
+            }
           }
           .download {
             width: 28px;
             height: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             color: $main-text-color;
             border-radius: 50%;
             background: #f2f2f2;
             border: none;
             outline: none;
+            img {
+              display: inline-block;
+              width: 14px;
+              height: 14px;
+              color: #191919;
+              vertical-align: middle;
+            }
           }
         }
       }

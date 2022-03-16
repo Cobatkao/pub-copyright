@@ -1,11 +1,12 @@
 <template>
-  <i
-    class="spin awesome-font-loader"
+  <img
+    class="spin"
     :class="{
       light: type === 'light',
       dark: type === 'dark',
       primary: type === 'primary',
     }"
+    src="@/assets/images/loader.svg"
   />
 </template>
 
@@ -34,6 +35,9 @@ export default {
 
 .spin {
   display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
   animation: move 0.65s infinite linear;
 
   &.light {
