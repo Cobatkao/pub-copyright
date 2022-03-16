@@ -80,6 +80,9 @@ export default {
     paySuccess() {
       this.hideModal();
       this.$toast.success("付款成功");
+      setTimeout(() => {
+        window.location.reload();
+      });
     },
     pollingGetPayState() {
       const id = setInterval(() => {

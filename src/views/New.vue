@@ -1,10 +1,7 @@
 <template>
   <div class="process-ct">
     <header>
-      <div class="slogan">
-        <img src="@/assets/images/logo.png" />
-        <span class="slogan-text"> mianbaoduo.com 出品 </span>
-      </div>
+      <slogan />
       <div class="main"></div>
     </header>
     <div class="divider" />
@@ -67,12 +64,11 @@
         <div class="row">
           <p class="how label">
             <span>作品指纹</span>
-            <a class="how-text" @click.stop="isInputVisible = !isInputVisible">
+            <a class="how-text" @click.stop="triggerCalculate">
               点击计算作品指纹
               <img
-                src="@/assets/images/question.png"
-                srcset="@/assets/images/question@2x.png 2x"
-                alt="装饰"
+                src="@/assets/images/click.svg"
+                alt="点击"
                 class="decoration desk"
               />
             </a>
@@ -114,8 +110,8 @@
           <ul v-if="fileQueue.length > 0" class="file-quene">
             <li v-for="({ file, sha256 }, i) in fileQueue" :key="i">
               <span label>{{ file.name }}</span> |
-              <span>{{ file.size | fileSize }}</span> |
-              <span>Type: {{ file.name | fileType }}</span> |
+              <span>{{ getFileSize(file.size) }}</span> |
+              <span>Type: {{ getFileType(file.name) }}</span> |
               <span>Time spent: {{ sha256.timeSpent.toFixed(2) }}s</span> |
               <br />
               <span
@@ -132,8 +128,12 @@
           <p class="un-selected" v-else>未选择任何文件</p>
         </div>
         <div class="start row">
-          <button @click="startProcess" :class="{ disabled: hasSaved }">
-            开始存证 <spinner-icon v-if="loading" type="primary" />
+          <button
+            class="start"
+            @click="startProcess"
+            :class="{ disabled: hasSaved }"
+          >
+            开始存证 <spinner-icon v-if="loading" type="light" />
           </button>
         </div>
       </div>
@@ -173,13 +173,15 @@ import config from "@/config";
 import { mapActions, mapGetters } from "vuex";
 
 const SpinnerIcon = () => import("@/components/Spinner");
+import Slogan from "@/components/Slogan";
 
 const MAX_FILE_SIZE = 1024 * 1024 * 1024 * 1.5; // 1.5 GB
 
 export default {
   name: "Process",
-  coponents: {
+  components: {
     SpinnerIcon,
+    Slogan,
   },
   data() {
     return {
@@ -198,6 +200,8 @@ export default {
       isIdValid: false,
       isPhoneValid: false,
       order_id: null,
+      fileSizeParam: 0,
+      fileTypeParam: "ZIP",
     };
   },
   computed: {
@@ -205,6 +209,85 @@ export default {
   },
   methods: {
     ...mapActions(["addFiles"]),
+    checkFileType(suffix) {
+      var result = "";
+      // 匹配txt
+      result = ["png", "jpg", "jpeg", "bmp", "gif", "svg", "WebP"].some(
+        function (item) {
+          return item == suffix;
+        }
+      );
+      if (result) {
+        result = "IMAGE";
+        return result;
+      }
+      // 匹配txt
+      result = ["txt"].some(function (item) {
+        return item == suffix;
+      });
+      if (result) {
+        result = "TXT";
+        return result;
+      }
+      // 匹配 视频
+      var videolist = [
+        "mpeg4",
+        "mp4",
+        "m2v",
+        "mkv",
+        "rmvb",
+        "avi",
+        "flv",
+        "mkv",
+        "wmv",
+        "mp3",
+        "wav",
+        "ogg",
+        "flv",
+        "swf",
+        "webm",
+        "mov",
+      ];
+      result = videolist.some(function (item) {
+        return item == suffix;
+      });
+      if (result) {
+        result = "VIDEO";
+        return result;
+      }
+      // 其他 文件类型
+      result = "ZIP";
+      return result;
+    },
+    getFileType(value) {
+      const _type = String(value).split(".").pop().toUpperCase();
+      // 文件类型，为 IMAGE ，TXT，VIDEO，ZIP 任一，如果不是前三者则都为 ZIP
+      this.fileTypeParam = this.checkFileType(
+        (_type && _type.toLowerCase()) || ""
+      );
+      return _type;
+    },
+    getFileSize(bytes) {
+      if (bytes === 0) return "0 B";
+      var k = 1000, // or 1024
+        sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
+        i = Math.floor(Math.log(bytes) / Math.log(k)),
+        no = (bytes / Math.pow(k, i)).toPrecision(3);
+      var _size = no + " " + sizes[i];
+      this.fileSizeParam = no * 1024;
+      return _size;
+    },
+    scrollTo(node) {
+      document.querySelector(node).scrollIntoView({
+        behavior: "smooth",
+      });
+    },
+    triggerCalculate() {
+      this.isInputVisible = !this.isInputVisible;
+      this.$nextTick(() => {
+        this.scrollTo(".start");
+      });
+    },
     copyAction(val = "") {
       this.$copyText(val).then(() => {
         this.$toast("已复制到粘贴板");
@@ -258,10 +341,10 @@ export default {
         cert_name: this.name,
         cert_no: this.idCardNum,
         file_hash: this.fingerprint,
-        file_length: 2048,
+        file_length: this.fileSizeParam,
         memo: this.productname,
         phone: this.phone,
-        file_type: "ZIP",
+        file_type: this.fileTypeParam,
       })
         .then(({ info, order_id }) => {
           this.order_id = order_id;
@@ -417,8 +500,7 @@ export default {
               cursor: pointer;
               img {
                 display: inline-block;
-                width: 16px;
-                margin-left: 3px;
+                width: 24px;
               }
             }
           }

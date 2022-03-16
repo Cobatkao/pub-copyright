@@ -1,10 +1,7 @@
 <template>
   <div class="home-ct">
     <header>
-      <div class="slogan">
-        <img src="@/assets/images/logo.png" />
-        <span class="slogan-text"> mianbaoduo.com 出品 </span>
-      </div>
+      <slogan />
       <router-link to="query" class="order-query">
         <span>订单查询</span>
       </router-link>
@@ -64,45 +61,25 @@
 </template>
 
 <script>
-// import HelloWorld from "@/components/HelloWorld.vue";
+import Slogan from "@/components/Slogan";
 
 export default {
   name: "Home",
-  components: {},
+  components: {
+    Slogan,
+  },
 };
 </script>
 
 <style scoped lang="scss">
 .home-ct {
   header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 28px 110px 29px 41px;
-    .slogan {
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      min-width: 242px;
-      height: 56px;
-      background: $pure-white;
-      box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.12);
-      border-radius: 43px;
-      .slogan-text {
-        color: $main-text-color;
-        font-size: 15px;
-        font-weight: bold;
-        white-space: nowrap;
-      }
-      img {
-        display: inline-block;
-        width: 38px;
-        height: 38px;
-      }
-    }
+    padding: 40px 110px 29px 60px;
+    @include clearfix();
     .order-query {
       width: 184px;
       height: 50px;
+      float: right;
       line-height: 50px;
       text-align: center;
       border-radius: 14px;
@@ -147,6 +124,7 @@ export default {
       line-height: 64px;
       text-decoration: none;
       text-align: center;
+      font-weight: bold;
       color: $pure-white;
       background: $pure-black;
       cursor: pointer;

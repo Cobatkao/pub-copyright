@@ -1,10 +1,7 @@
 <template>
   <div class="proof-ct">
     <header>
-      <div class="slogan">
-        <img src="@/assets/images/logo.png" />
-        <span class="slogan-text"> mianbaoduo.com 出品 </span>
-      </div>
+      <slogan />
     </header>
     <div v-if="visible" class="title">
       <span class="back" @click="$router.go(-1)">
@@ -68,22 +65,13 @@
       </div>
       <div class="rt">
         <div class="certificate">
-          <!-- <iframe
+          <iframe
             v-if="detail && detail.certificate_url"
             width="100%"
             height="450"
             scrolling="no"
             frameBorder="0"
             :src="`${detail && detail.certificate_url}#page=1&toolbar=0`"
-          >
-            当前浏览器不支持PDF预览，请点击下方预览证书或使用Chrome浏览器进行
-          </iframe> -->
-          <iframe
-            width="100%"
-            height="450"
-            scrolling="no"
-            frameBorder="0"
-            src="https://oss.niucodata.com/copy_right_cert_66cad491eaae3dd975b38e23d2516bf8.pdf?sign=f0f3903422eb254701d27dcb63b13115&t=62325582#page=1&toolbar=0"
           >
             当前浏览器不支持PDF预览，请点击下方预览证书或使用Chrome浏览器进行
           </iframe>
@@ -114,10 +102,15 @@ import config from "@/config";
 import dayjs from "dayjs";
 import downloadFile from "@/utils/download";
 
+import Slogan from "@/components/Slogan";
+
 const store = require("store");
 
 export default {
   name: "Proof",
+  components: {
+    Slogan,
+  },
   data() {
     return {
       detail: null,

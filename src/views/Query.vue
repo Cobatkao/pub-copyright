@@ -1,10 +1,7 @@
 <template>
   <div class="query-ct">
     <header>
-      <div class="slogan">
-        <img src="@/assets/images/logo.png" />
-        <span class="slogan-text"> mianbaoduo.com 出品 </span>
-      </div>
+      <slogan />
       <div class="main"></div>
     </header>
     <div class="divider" />
@@ -30,10 +27,13 @@
             v-model="orderId"
             placeholder="输入订单号"
           />
-          <button @click="startQuery">查询</button>
+          <button @click="startQuery" :class="{ light: fetching }">
+            <span v-if="!fetching">查询</span>
+            <spinner v-else type="light" />
+          </button>
         </div>
         <div class="rt">
-          <a class="how-text">
+          <a class="how-text" href="#">
             如何找到订单号
             <img
               src="@/assets/images/question.png"
@@ -46,35 +46,36 @@
       </div>
     </div>
     <div class="result">
-      <div v-for="item in resList" :key="item.id" class="item">
-        <div class="item-tp">
-          <div class="status-dot" />
-          <div class="time">2019.08.29 14:30:23</div>
-        </div>
-        <div class="item-md">
-          <span class="product-name">{{ item.memo || "未命名" }}</span>
-        </div>
-        <div class="item-bt">
-          <div class="lf">
-            <p class="type">文件类型：{{ item.file_type | fileType }}</p>
-            <p class="id">{{ item.order_id }}</p>
+      <template v-if="resList && resList.length > 0">
+        <div v-for="item in resList" :key="item.id" class="item">
+          <div class="item-tp">
+            <div class="status-dot" />
+            <div class="time">2019.08.29 14:30:23</div>
           </div>
-          <div class="rt">
-            <button class="check" @click="jumpProof(item)">
-              <span>查看证据</span> <spinner v-if="loading" type="dark" />
-            </button>
-            <button class="download">
-              <img
-                @click.stop="cancel"
-                src="@/assets/images/download.svg"
-                alt="装饰"
-                title="关闭"
-              />
-            </button>
+          <div class="item-md">
+            <span class="product-name">{{ item.memo || "未命名" }}</span>
+          </div>
+          <div class="item-bt">
+            <div class="lf">
+              <p class="type">文件类型：{{ item.file_type | fileType }}</p>
+              <p class="id">{{ item.order_id }}</p>
+            </div>
+            <div class="rt">
+              <button class="check" @click="jumpProof(item)">
+                <span>查看证据</span> <spinner v-if="loading" type="dark" />
+              </button>
+              <button class="download" @click="downCertificate(item.file_url)">
+                <img
+                  src="@/assets/images/download.svg"
+                  alt="装饰"
+                  title="下载"
+                />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- <p class="empty" v-else>未找到查询记录</p> -->
+      </template>
+      <p v-else class="empty">未找到查询记录</p>
     </div>
   </div>
 </template>
@@ -83,8 +84,10 @@
 import * as Fetch from "@/utils/request";
 import config from "@/config";
 import dayjs from "dayjs";
+import downloadFile from "@/utils/download";
 
 const Spinner = () => import("@/components/Spinner");
+import Slogan from "@/components/Slogan";
 
 const store = require("store");
 
@@ -92,6 +95,7 @@ export default {
   name: "Query",
   components: {
     Spinner,
+    Slogan,
   },
   data() {
     return {
@@ -99,9 +103,10 @@ export default {
       orderId: null,
       resList: [],
       loading: false,
+      fetching: false,
     };
   },
-  filter: {
+  filters: {
     fileType(str) {
       switch (str) {
         case "VIDEO":
@@ -116,6 +121,10 @@ export default {
     },
   },
   methods: {
+    downCertificate(url) {
+      if (!url) return this.$toast.error("证书地址出错，无certificate_url");
+      downloadFile(url, "公证文件");
+    },
     jumpProof(item) {
       this.loading = true;
       if (store.get("proof")) {
@@ -132,10 +141,12 @@ export default {
       }, 1200);
     },
     startQuery() {
+      this.fetching = true;
       Fetch.post(`${config.fetchUrl}get_open_copyright`, {
         order_id: this.orderId,
       }).then(({ data }) => {
         this.resList = data;
+        this.fetching = false;
         if (data.length === 0) {
           this.$toast("该订单号下没有存证记录");
         }
@@ -154,33 +165,9 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 44px 110px 29px 41px;
+    padding: 59px 110px 29px 41px;
     margin-bottom: 60px;
     position: relative;
-    .slogan {
-      position: absolute;
-      left: 60px;
-      top: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      min-width: 242px;
-      height: 56px;
-      background: $pure-white;
-      box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.12);
-      border-radius: 43px;
-      .slogan-text {
-        color: $main-text-color;
-        font-size: 15px;
-        font-weight: bold;
-        white-space: nowrap;
-      }
-      img {
-        display: inline-block;
-        width: 38px;
-        height: 38px;
-      }
-    }
     .main {
       width: 701px;
       height: 166px;
@@ -218,20 +205,33 @@ export default {
           margin-right: 8px;
         }
         .text {
-          font-size: 22px;
+          font-size: 24px;
           font-family: PingFangSC-Semibold, PingFang SC;
           font-weight: 600;
           color: $pure-black;
           line-height: 28px;
+          white-space: nowrap;
         }
       }
       .md {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
         margin: 0 20px 0 22px;
+        input {
+          height: 50px;
+          line-height: 50px;
+          padding-left: 15px;
+          background: $pure-white;
+          border-radius: 5px;
+          @include bordered(#edeef0, 1px);
+        }
         button {
           width: 84px;
-          height: 40px;
+          height: 50px;
           margin-left: -4px;
-          line-height: 40px;
+          line-height: 50px;
           text-align: center;
           color: $pure-white;
           background: $pure-black;
@@ -240,24 +240,23 @@ export default {
           outline: none;
           border: none;
           cursor: pointer;
-        }
-        input {
-          height: 40px;
-          line-height: 40px;
-          padding-left: 15px;
-          background: $pure-white;
-          border-radius: 5px;
-          @include bordered(#edeef0, 1px);
+          &.light {
+            background: $tip-bg;
+            border: 1px solid #edeef0;
+          }
         }
       }
       .rt {
         .how-text {
           display: flex;
+          flex-wrap: nowrap;
+          justify-content: center;
           align-items: center;
           color: $button-copy-button;
           font-weight: bold;
-          cursor: pointer;
           text-decoration: underline;
+          white-space: nowrap;
+          cursor: pointer;
           img {
             display: inline-block;
             width: 16px;
@@ -272,6 +271,7 @@ export default {
     flex-direction: column;
     justify-content: space-between;
     width: 1000px;
+    min-height: 380px;
     margin: 0 auto;
     .empty {
       margin: 0 auto;
