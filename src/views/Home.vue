@@ -5,9 +5,9 @@
         <img src="@/assets/images/logo.png" />
         <span class="slogan-text"> mianbaoduo.com 出品 </span>
       </div>
-      <div class="order-query">
+      <router-link to="query" class="order-query">
         <span>订单查询</span>
-      </div>
+      </router-link>
     </header>
     <div class="intro"></div>
     <div class="start">
@@ -106,6 +106,7 @@ export default {
       line-height: 50px;
       text-align: center;
       border-radius: 14px;
+      text-decoration: none;
       cursor: pointer;
       &:hover {
         transition: all 0.3s;
@@ -116,6 +117,7 @@ export default {
         font-size: 18px;
         color: $pure-black;
         font-weight: bold;
+        text-decoration: none;
       }
     }
   }

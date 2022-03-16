@@ -90,14 +90,13 @@
         </div>
         <div class="func-btns">
           <button class="help">获得帮助</button>
-          <!-- <a
+          <a
             v-if="detail.certificate_url"
             :href="detail.certificate_url"
             target="_blank"
             class="preview"
             >预览证书</a
-          > -->
-          <a href="" class="preview">预览证书</a>
+          >
         </div>
         <ul class="mentions">
           <li><span>最高法核验地址: https://sfl.cour.com</span></li>

@@ -7,6 +7,11 @@ import VueInputAutowidth from "vue-input-autowidth";
 import VueClipboard from "vue-clipboard2";
 import Toast from "vue-toastification";
 import payModal from "@/components/payModal";
+import NProgress from "nprogress"; // 进度条
+import "nprogress/nprogress.css"; //这个样式必须引入
+
+NProgress.inc(0.2); //递增进度条
+NProgress.configure({ easing: "ease", speed: 500, showSpinner: false });
 
 Vue.use(Toast, {
   timeout: 1800,
