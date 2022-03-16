@@ -1,0 +1,20 @@
+$pure-black: #000000;
+$pure-white: #ffffff;
+$plain-text-color: #4a4a4a;
+$main-text-color: #191919;
+$label-text-color: #9b9b9b;
+
+$button-border-color: #edeef0;
+$button-copy-button: #2faf62;
+$func-button-color: #6362ff;
+$func-button-bg: #dadafb;
+
+$title-text-color: #3f3eac;
+$tip-text-color: #6362ff;
+$tip-bg: #f6f7fb;
+
+.over-h {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

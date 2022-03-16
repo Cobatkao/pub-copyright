@@ -1,0 +1,81 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  word-break: break-word;
+  outline: none;
+}
+
+html {
+  overflow-y: scroll;
+  overflow-y: overlay;
+}
+
+body {
+  font-size: 14px;
+  background-color: #fafafc;
+  color: #191919;
+  font-family: Helvetica Neue, PingFang SC, Helvetica, Arial, Hiragino Sans GB,
+    Microsoft Yahei, STHeiti, sans-serif;
+  font-family: -apple-system, SF UI Display, Arial, PingFang SC,
+    Hiragino Sans GB, Microsoft YaHei, WenQuanYi Micro Hei, sans-serif;
+}
+
+audio,
+video {
+  outline: none;
+}
+
+textarea {
+  font-size: inherit;
+}
+
+textarea:focus {
+  outline: none;
+}
+
+h1 {
+  font-size: 20px;
+}
+
+textarea:disabled {
+  background-color: transparent;
+}
+
+input:-internal-autofill-selected {
+  background-color: transparent !important;
+}
+
+input,
+textarea {
+  -webkit-appearance: none;
+}
+
+li {
+  list-style-type: none;
+}
+
+blockquote {
+  font-family: inherit !important;
+}
+
+#app {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+textarea {
+  font-family: -apple-system, BlinkMacSystemFont, PingFang SC, Hiragino Sans GB,
+    Microsoft YaHei, "\5FAE\8F6F\96C5\9ED1", helvetica neue, helvetica, ubuntu,
+    roboto, noto, segoe ui, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
